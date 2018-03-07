@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>H5的canvas实现数字雨效果</title>
+	<style>
+	*{
+		margin: 0;
+		padding: 0;
+	}
+	body{
+		background: #000;
+		overflow:hidden;
+	}
+	canvas{
+		margin: 0 auto;
+		display: block;
+		background-color: #FFF;
+	}
+	</style>
+</head>
+<body>
+
+<canvas id="canvas">
+	您的浏览器不支持canvas
+</canvas>
+
+<script>
+	var canvas = document.getElementById(`canvas`), //获取画布
+	    cxt = canvas.getContext(`2d`), //获得2d绘图环境
+	    size = 12;//设置字体大小和列宽
+
+	//注意点：canvas不能在样式里设置宽高，那是对默认300*150的一个拉伸变形。
+	//可以直接在标签上设置宽高，如：width="500" height="500"(像图片标签那样)。
+	canvas.width = window.screen.width; //设置画布宽度
+	canvas.height = window.screen.height;//设置画布高度
+
+	var y = [], //用数组存储每一列更新后的y坐标
+	    cols = canvas.width/size; //根据每一列宽为size来计算列数
+
+    //初始化每一列y值(随机)，取不同的值让雨点错开（不并排下落）
+    for(var i=0;i<cols;i++){
+    	y[i] = Math.random()*800;
+    }
+
+
+    //画图函数
+	(function draw(){
+		//理解难点就是以下这个背景覆盖
+		cxt.fillStyle = `rgba(0,0,0,.1)`; //设置背景颜色和透明度（将会叠加，形成渐变）
+		cxt.fillRect(0,0,canvas.width,canvas.height); //描绘每一行背景
+
+		cxt.fillStyle = `#33ff00`; //设置字体颜色
+		cxt.font = `${size}px Microsoft yahei`; //设置字体
+		for(var i=0;i<cols;i++){//描绘所有列
+			var num = Math.floor(Math.random()*10)+'';//获取0-9随机数
+			var numX = i*size;//第i列的x坐标
+			var numY = y[i];//第i列的y坐标
+			cxt.fillText(num,numX,numY);//描绘数字
+			y[i] += size;//增加size高度以写该列中下一个（行）数字的y坐标
+			if(y[i]>=canvas.height && Math.random()>=.9){ //随机取值进一步控制雨点错开
+				y[i] = 0; //回到顶部再写
+			}
+		}
+		window.requestAnimationFrame(draw);//帧动画函数
+	})();
+
+
+</script>
+
+
+</body>
+</html>
